@@ -237,6 +237,7 @@ def face_finder(encoding, database):
     known_face_encodings = []
     known_face_names = []
     image_current = encoding
+    identity = "Unknown Person"
     current_encoding = face_recognition.face_encodings(image_current)[0]
     authenticate = False
     for image in images:
@@ -245,7 +246,7 @@ def face_finder(encoding, database):
         face_encoding = face_recognition.face_encodings(image_sent)[0]
         known_face_encodings.append(face_encoding)
         text = str(image)
-        head, sep, tail = text.partition('.')
+        head = text.replace('.jpg', '')
         known_face_names.append(head.replace('images\\', ''))
     matches = face_recognition.compare_faces(known_face_encodings, current_encoding)
     face_distances = face_recognition.face_distance(known_face_encodings, current_encoding)
@@ -324,9 +325,4 @@ if __name__ == "__main__":
     
 
     print("** Starting Flask server.........Please wait until the server starts ")
-    print('Loading the Neural Network......\n')
-    # load_FRmodel()
-    print('Model loaded..............')
-    # ini_user_database()
-    print('Database loaded...........')
     app.run(host='0.0.0.0', port=5000)
