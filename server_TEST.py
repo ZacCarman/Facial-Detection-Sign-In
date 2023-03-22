@@ -143,7 +143,7 @@ def logout():
 # Sign up page display
 @app.route('/sign_up')
 def sign_up():
-    return flask.render_template("signUp.html")
+    return flask.render_template("signup.html")
 
 
 
