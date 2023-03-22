@@ -166,6 +166,8 @@ def signup_user():
         print("EMAIL: "+POST_USERNAME)
         print("NAME: " + NAME)
         print(POST_USERNAME not in user_db.keys())
+        if POST_PASSWORD == "":
+            user_status['password'] = False
         if POST_USERNAME == "":
             print("EMAIL PING")
             user_status['email'] = False

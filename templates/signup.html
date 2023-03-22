@@ -168,7 +168,10 @@
                     console.log(data)
                     if(data['email'] == false){
                         alert('Please enter Email!');
-                    } else if(data['NAME'] == false)
+                    } else if(data['password'] == false){
+                        alert('Please enter Password!');
+                    }
+                     if(data['NAME'] == false)
                     {
                         alert('Please enter Name!');
                     }else{
