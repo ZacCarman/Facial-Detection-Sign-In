@@ -57,7 +57,13 @@ def face_present(image_path):
         roi_color = img[y-90:y+h+70, x-50:x+w+50]
         
         # crop to 96 X 96, required by the model
-        roi_color = cv2.resize(roi_color, (96, 96))
+        # roi_color = cv2.resize(roi_color, (96, 96))
+        try:
+
+            roi_color=cv2.resize(roi_color, (96, 96))
+
+        except Exception as e:
+            print(str(e))
         # save the detected face
         cv2.imwrite(save_loc, roi_color)
         # make face present as true
@@ -156,52 +162,68 @@ def signup_user():
         POST_USERNAME = str(request.form['email'])
         POST_PASSWORD = str(request.form['pass'])
         NAME = str(request.form['name'])
-
-        if POST_USERNAME not in user_db.keys():
-            # add new user's face
-            if flask.request.files.get("image"):
-                print('Inside Image')
-                # read the image in PIL format
-                image = flask.request.files["image"].read()
-                image = np.array(Image.open(io.BytesIO(image)))
-                print('Image saved success')
-                # save the image on server side
-                cv2.imwrite('saved_image/new.jpg',
-                            cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-                # check if any face is present or not in the picture
-                data, encoding = add_face()
-                # set face detected as True
-                user_status['face_present'] = data['face_present']
-            # if no image was sent
-            else:
-                user_status['face_present'] = False
-
-            # only create a new session if complete user details is present
-            if data['face_present']:
-                # create a new session
-                Session = sessionmaker(bind=engine)
-                s = Session()
-                # add data to user_db dict
-                user_db[POST_USERNAME]['encoding'] = encoding
-                user_db[POST_USERNAME]['name'] = NAME
-
-                # save the user_db dict
-                with open('database/user_dict.pickle', 'wb') as handle:
-                    pickle.dump(user_db, handle,protocol=pickle.HIGHEST_PROTOCOL)
-                print('User ' + POST_USERNAME + ' added successfully')
-
-                # adding the user to data base
-                user = User(POST_USERNAME, POST_PASSWORD)
-                s.add(user)
-                s.commit()
-
-                # set registration status as True
-                user_status['registration'] = True
-                #logging in the user
-                session['logged_in'] = True
-                #return dashboard()
+        NAME = NAME.strip()
+        print("EMAIL: "+POST_USERNAME)
+        print("NAME: " + NAME)
+        print(POST_USERNAME not in user_db.keys())
+        if POST_USERNAME == "":
+            print("EMAIL PING")
+            user_status['email'] = False
+            return flask.jsonify(user_status)
         else:
-            user_status['duplicate'] = True
+            if POST_USERNAME not in user_db.keys():
+                # add new user's face
+                print("HERE")
+                if NAME == "":
+                    user_status['NAME'] = False
+                    return flask.jsonify(user_status)
+                else:
+                    user_status['NAME'] = True
+                    if flask.request.files.get("image"):
+                        print('Inside Image')
+                        # read the image in PIL format
+                        image = flask.request.files["image"].read()
+                        image = np.array(Image.open(io.BytesIO(image)))
+                        print('Image saved success')
+                        # save the image on server side
+                        filename = NAME + ".jpg"
+                        cv2.imwrite('images/' + filename,
+                                    cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+                        # check if any face is present or not in the picture
+                        # data, encoding = add_face()
+                        # set face detected as True
+                        user_status['face_present'] = True
+                    # if no image was sent
+                    else:
+                        user_status['face_present'] = False
+
+                    # only create a new session if complete user details is present
+                    if user_status['face_present']:
+                        # create a new session
+                        Session = sessionmaker(bind=engine)
+                        s = Session()
+                        user_db[POST_USERNAME]['name'] = NAME
+
+                        # save the user_db dict
+                        with open('database/user_dict.pickle', 'wb') as handle:
+                            pickle.dump(user_db, handle,protocol=pickle.HIGHEST_PROTOCOL)
+                        print('User ' + POST_USERNAME + ' added successfully')
+
+                        # adding the user to data base
+                        user = User(POST_USERNAME, POST_PASSWORD)
+                        s.add(user)
+                        s.commit()
+
+                        # set registration status as True
+                        user_status['registration'] = True
+                        #logging in the user
+                        session['logged_in'] = True
+                        #return dashboard()
+            else:
+                print("FLASE PING")
+                user_status['NAME'] = True
+                user_status['Email'] = True
+                user_status['duplicate'] = True
     
     #return sign_up()
     return flask.jsonify(user_status)
@@ -321,8 +343,23 @@ def predict():
     return flask.jsonify(data)
 
 
+# load the saved user database
+def ini_user_database():
+    global user_db
+    # check for existing database
+    if os.path.exists('database/user_dict.pickle'):
+        with open('database/user_dict.pickle', 'rb') as handle:
+            user_db = pickle.load(handle)
+    else:
+        # make a new one
+        # we use a dict for keeping track of mapping of each person with his/her face encoding
+        user_db = defaultdict(dict)
+    return user_db
+
+
 if __name__ == "__main__":
     
 
     print("** Starting Flask server.........Please wait until the server starts ")
+    ini_user_database()
     app.run(host='0.0.0.0', port=5000)

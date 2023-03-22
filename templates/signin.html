@@ -150,6 +150,7 @@
                 </div> 
                 <input  id="submit" type="submit" value="Log in" >
             </form>
+            <button id="signup" >Sign Up</button>
         </div>
     </div>
     
@@ -160,6 +161,7 @@
         // Button Holder
         let b = document.getElementById("button");
         
+        let signup = document.getElementById("signup")
     
         let imageCanvas = document.createElement('canvas');
         let imageCtx = imageCanvas.getContext("2d");
@@ -176,14 +178,14 @@
 
                     console.log(this.response);
                     if (data['authenticate'] == true) {
-                        alert('User authenticated ! Welcome ' + data['name']);
+                        alert('User authenticated! Welcome ' + data['name']);
                         window.location.href = "{{ url_for('dashboard')}}";
                     }
                     else if(data['face_present'] == false){
                         alert('No face detected in frame!');
                     }
                     else {
-                        alert('Unknown user !');
+                        alert('Unknown user!');
                         window.location.href = "{{ url_for('login')}}";
                     } 
                 }
@@ -216,7 +218,9 @@
             console.log('clicked button');
             sendImagefromCanvas();
         };
-
+        signup.onclick = function (){
+            window.location.href = "{{ url_for('sign_up')}}";
+        }
         window.onload = function () {
             navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false })
                 .then(stream => {

@@ -11,14 +11,18 @@ zac_face_encoding = face_recognition.face_encodings(zac_image)[0]
 adris_image = face_recognition.load_image_file("images/adris.jpg")
 adris_face_encoding = face_recognition.face_encodings(adris_image)[0]
 
+philip_image = cv2.imread("images/philip.jpg")
+philip_face_encoding = face_recognition.face_encodings(philip_image)[0]
 # Create arrays of known face encodings and their names
 known_face_encodings = [
     zac_face_encoding,
-    adris_face_encoding
+    adris_face_encoding,
+    philip_face_encoding
 ]
 known_face_names = [
     "Zac Carman",
-    "Adris Azmi"
+    "Adris Azmi",
+    "Philip"
 ]
 
 # Initialize some variables

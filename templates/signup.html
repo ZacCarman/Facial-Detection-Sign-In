@@ -165,20 +165,28 @@
                 if (this.status === 200) {
                     var data = JSON.parse(this.responseText);
                     console.log(this.response);
+                    console.log(data)
+                    if(data['email'] == false){
+                        alert('Please enter Email!');
+                    } else if(data['NAME'] == false)
+                    {
+                        alert('Please enter Name!');
+                    }else{
                     if(data['duplicate'] == true){
-                        alert('User already registered !');
+                        alert('User already registered!');
                         resetFields();
                         window.location.href = "{{ url_for('sign_up')}}";
                     }
                     else if(data["face_present"] == true ) {
-                        alert('User Registration Successful !');
+                        alert('User Registration Successful!');
                         window.location.href = "{{ url_for('dashboard')}}";
                     }
                     else {
-                        alert('No face detected in the picture. Try again !');
+                        alert('No face detected in the picture. Try again!');
                         window.location.href = "{{ url_for('sign_up')}}";
                     } 
                 }
+            }
                 else {
                     console.error(xhr);
                 }
