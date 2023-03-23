@@ -1,6 +1,7 @@
 import cv2
 import face_recognition
 import numpy as np
+import matplotlib.pyplot as plt
 
 video_capture = cv2.VideoCapture(0)
 
@@ -54,14 +55,16 @@ while True:
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
+                
 
             face_names.append(name)
 
     process_this_frame = not process_this_frame
-
-
+    if len(face_names) > 0:
+        break
     # Display the results
     for (top, right, bottom, left), name in zip(face_locations, face_names):
+
         top *= 4
         right *= 4
         bottom *= 4
@@ -77,6 +80,12 @@ while True:
     # Hit 'q' on the keyboard to quit!
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+plt.plot( known_face_names, matches)
+plt.ylabel("Probability")
+plt.show()
+plt.plot(known_face_names, face_distances)
+plt.ylabel("Distance")
+plt.show()
 
 # Release handle to the webcam
 video_capture.release()
